@@ -14,7 +14,11 @@ const STORAGE_KEYS = {
 const DEFAULT_SETTINGS = {
   duration: 60,          // 秒
   adminPassword: "itclub2026", // 必要に応じて admin.html 上で変更してください
-  bgmVolume: 0.5,        // BGM音量（0〜1）
+  ttsEnabled: true,      // 問題の読み上げ ON/OFF
+  ttsVoice: "",          // 声の名前（空なら男性っぽい声を自動選択）
+  ttsPitch: 1.4,         // 声の高さ 0〜2（高めでアニメ風）
+  ttsRate: 1.2,          // 速さ 0.5〜2
+  ttsVolume: 1,          // 音量 0〜1
 };
 
 /* ---------- 日付（当日ランキング用） ---------- */
@@ -38,50 +42,6 @@ function getTodayTop(n = 10) {
     .slice(0, n);
 }
 
-/* ---------- BGM（音声ファイルは大きいので IndexedDB に保存） ---------- */
-function idbOpen() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open("sushitypeing_db", 1);
-    req.onupgradeneeded = () => req.result.createObjectStore("files");
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function idbPut(key, value) {
-  const db = await idbOpen();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction("files", "readwrite");
-    tx.objectStore("files").put(value, key);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-}
-
-async function idbGet(key) {
-  const db = await idbOpen();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction("files", "readonly");
-    const req = tx.objectStore("files").get(key);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function idbDelete(key) {
-  const db = await idbOpen();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction("files", "readwrite");
-    tx.objectStore("files").delete(key);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-}
-
-// { name: "ファイル名", blob: Blob } を保存
-function saveBGM(file) { return idbPut("bgm", { name: file.name, blob: file }); }
-async function loadBGM() { try { return await idbGet("bgm"); } catch (e) { console.warn(e); return null; } }
-function deleteBGM() { return idbDelete("bgm"); }
 
 function loadJSON(key, fallback) {
   try {

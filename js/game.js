@@ -70,31 +70,6 @@ function renderLeaderboard(highlightId) {
   });
 }
 
-/* ---------- BGM ---------- */
-const bgm = new Audio();
-bgm.loop = true;
-let bgmReady = false;
-
-async function prepareBGM() {
-  const rec = await loadBGM();
-  if (rec && rec.blob) {
-    bgm.src = URL.createObjectURL(rec.blob);
-    bgmReady = true;
-  }
-}
-
-function playBGM() {
-  if (!bgmReady) return;
-  bgm.volume = Number(getSettings().bgmVolume ?? 0.5);
-  bgm.currentTime = 0;
-  bgm.play().catch(err => console.warn("BGM再生不可:", err));
-}
-
-function stopBGM() {
-  if (!bgmReady) return;
-  bgm.pause();
-  bgm.currentTime = 0;
-}
 
 function escapeHTML(s) {
   return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
@@ -180,13 +155,14 @@ function startGame() {
   state.correctCount = 0;
   state.mistakeCount = 0;
   state.timeLeft = state.duration;
+  state.currentItem = null;
   state.playing = true;
 
   showScreen("screen-play");
   document.getElementById("hud-timer").textContent = state.timeLeft;
   document.getElementById("hud-yen").textContent = "0";
-  playBGM();
-  nextWord();
+  speak("よーい、スタート！");
+  setTimeout(() => { if (state.playing) nextWord(); }, 900);
 
   state.timerId = setInterval(() => {
     state.timeLeft -= 1;
@@ -206,6 +182,7 @@ function nextWord() {
   document.getElementById("word-kana").textContent = state.currentItem.kana;
   document.getElementById("word-price").textContent = `${state.currentItem.price}円`;
   document.getElementById("word-card").classList.toggle("rare", !!state.currentItem.rare);
+  speak(state.currentItem.rare ? `レア問題！${state.currentItem.kana}` : state.currentItem.kana);
   const art = document.getElementById("word-art");
   art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
   art.classList.remove("arrive");
@@ -219,7 +196,7 @@ function nextWord() {
 }
 
 function onKeyDown(e) {
-  if (!state.playing) return;
+  if (!state.playing || !state.currentItem) return;
   if (e.key === "Backspace") {
     if (state.typed.length > 0) {
       state.typed = state.typed.slice(0, -1);
@@ -294,7 +271,7 @@ function endGame() {
   state.playing = false;
   clearInterval(state.timerId);
   document.removeEventListener("keydown", onKeyDown);
-  stopBGM();
+  speak("しゅーりょー！");
 
   const ageLabel = AGE_CATEGORIES.find(c => c.key === state.ageCategoryKey)?.label || "";
   const now = new Date();
@@ -345,7 +322,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initEntryScreen();
   renderLeaderboard();
   buildSushiLane(document.getElementById("sushi-lane"));
-  prepareBGM();
   // 日付が変わった時のために1分ごとにランキングを更新
   setInterval(() => { if (!state.playing) renderLeaderboard(); }, 60000);
   document.getElementById("play-again-btn").addEventListener("click", resetToEntry);

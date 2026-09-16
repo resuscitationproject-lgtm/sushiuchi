@@ -14,7 +14,7 @@ function checkLogin() {
     renderUploadGrid("left");
     renderUploadGrid("right");
     document.getElementById("duration-input").value = settings.duration;
-    refreshBGMInfo();
+    refreshTTSControls();
   } else {
     document.getElementById("login-error").textContent = "パスワードが違います";
   }
@@ -152,61 +152,45 @@ function changePassword() {
   alert("パスワードを変更しました");
 }
 
-/* ---------- BGM ---------- */
-const previewAudio = new Audio();
-
-async function refreshBGMInfo() {
-  const rec = await loadBGM();
-  document.getElementById("bgm-name").textContent = rec ? `登録中：${rec.name}` : "未登録";
-  if (rec) previewAudio.src = URL.createObjectURL(rec.blob);
-  const vol = Math.round(Number(getSettings().bgmVolume ?? 0.5) * 100);
-  document.getElementById("bgm-volume").value = vol;
-  document.getElementById("bgm-volume-label").textContent = vol;
+/* ---------- 読み上げ ---------- */
+function refreshTTSControls() {
+  const s = getSettings();
+  document.getElementById("tts-enabled").checked = !!s.ttsEnabled;
+  [["tts-pitch", "ttsPitch"], ["tts-rate", "ttsRate"], ["tts-volume", "ttsVolume"]].forEach(([id, key]) => {
+    document.getElementById(id).value = s[key];
+    document.getElementById(`${id}-label`).textContent = Number(s[key]).toFixed(1);
+  });
+  onVoicesReady(voices => {
+    const sel = document.getElementById("tts-voice");
+    const current = pickVoice(getSettings().ttsVoice);
+    sel.innerHTML = voices.length
+      ? voices.map(v => `<option value="${escapeHTML(v.name)}">${escapeHTML(v.name)}</option>`).join("")
+      : `<option value="">日本語の音声が見つかりません</option>`;
+    if (current) sel.value = current.name;
+  });
 }
 
-function initBGMControls() {
-  document.getElementById("bgm-file").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      await saveBGM(file);
-      await refreshBGMInfo();
-      alert("BGMを登録しました");
-    } catch (err) {
-      console.error(err);
-      alert("BGMの保存に失敗しました（ファイルが大きすぎる可能性があります）");
-    }
+function updateSetting(key, value) {
+  const s = getSettings();
+  s[key] = value;
+  saveSettings(s);
+}
+
+function initTTSControls() {
+  document.getElementById("tts-enabled").addEventListener("change", e => updateSetting("ttsEnabled", e.target.checked));
+  document.getElementById("tts-voice").addEventListener("change", e => updateSetting("ttsVoice", e.target.value));
+  [["tts-pitch", "ttsPitch"], ["tts-rate", "ttsRate"], ["tts-volume", "ttsVolume"]].forEach(([id, key]) => {
+    document.getElementById(id).addEventListener("input", e => {
+      updateSetting(key, Number(e.target.value));
+      document.getElementById(`${id}-label`).textContent = Number(e.target.value).toFixed(1);
+    });
   });
-  document.getElementById("bgm-preview-btn").addEventListener("click", () => {
-    if (!previewAudio.src) return alert("BGMが登録されていません");
-    if (previewAudio.paused) {
-      previewAudio.volume = Number(getSettings().bgmVolume ?? 0.5);
-      previewAudio.play();
-      document.getElementById("bgm-preview-btn").textContent = "停止";
-    } else {
-      previewAudio.pause();
-      document.getElementById("bgm-preview-btn").textContent = "試聴";
-    }
-  });
-  document.getElementById("bgm-delete-btn").addEventListener("click", async () => {
-    if (!confirm("登録中のBGMを削除しますか？")) return;
-    previewAudio.pause();
-    previewAudio.removeAttribute("src");
-    await deleteBGM();
-    await refreshBGMInfo();
-  });
-  document.getElementById("bgm-volume").addEventListener("input", (e) => {
-    const v = Number(e.target.value);
-    document.getElementById("bgm-volume-label").textContent = v;
-    const s = getSettings();
-    s.bgmVolume = v / 100;
-    saveSettings(s);
-    previewAudio.volume = v / 100;
-  });
+  document.getElementById("tts-test-btn").addEventListener("click", () => speak("ちゅうとろ", { force: true }));
+  document.getElementById("tts-test-rare-btn").addEventListener("click", () => speak("レア問題！にれさとし", { force: true }));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initBGMControls();
+  initTTSControls();
   document.getElementById("login-btn").addEventListener("click", checkLogin);
   document.getElementById("admin-password").addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkLogin();
