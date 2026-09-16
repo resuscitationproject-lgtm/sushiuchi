@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>寿司打ちタイピング大会｜北九州ITクラブ</title>
-<link rel="stylesheet" href="css/style.css">
+<!-- ?v= はブラウザ／GitHub Pagesのキャッシュ対策。ファイルを更新したら数字を変えてください -->
+<link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
@@ -12,14 +13,9 @@
   <img class="logo" src="assets/itclub-logo.jpg" alt="北九州ITクラブ">
   <div>
     <h1>寿司打ちタイピング大会<span class="accent-dot"></span></h1>
-    <div class="capital-tag">北九州市は、寿司の都。</div>
+    <div class="capital-tag">北九州市は、寿司の都。 ― 関門海峡から、いただきます ―</div>
   </div>
 </header>
-
-<div class="leaderboard-bar">
-  <span class="leaderboard-title">🏆 TOP10</span>
-  <ol id="leaderboard-list" class="leaderboard-list"></ol>
-</div>
 
 <main class="layout">
   <div class="ad-column" id="ads-left"></div>
@@ -27,22 +23,34 @@
   <div class="game-panel">
 
     <!-- 受付画面 -->
-    <section id="screen-entry" class="screen">
-      <h2>参加者登録</h2>
-      <div class="field">
-        <label for="player-name">お名前（ニックネーム可）</label>
-        <input type="text" id="player-name" maxlength="20" placeholder="例）すし太郎">
+    <section id="screen-entry" class="screen screen-wide">
+
+      <div class="leaderboard-card">
+        <div class="leaderboard-head">
+          <span class="lb-crown">🏆</span>
+          <span class="lb-title">本日のTOP10</span>
+          <span class="lb-date"></span>
+        </div>
+        <ol class="leaderboard-list"></ol>
       </div>
-      <div class="field">
-        <label>年齢層</label>
-        <div class="age-grid" id="age-grid"></div>
+
+      <div class="entry-form">
+        <h2>参加者登録</h2>
+        <div class="field">
+          <label for="player-name">お名前（ニックネーム可）</label>
+          <input type="text" id="player-name" maxlength="20" placeholder="例）すし太郎">
+        </div>
+        <div class="field">
+          <label>年齢層</label>
+          <div class="age-grid" id="age-grid"></div>
+        </div>
+        <div class="field hidden" id="age-value-field">
+          <label for="age-value">実年齢</label>
+          <input type="number" id="age-value" min="1" max="120" placeholder="例）35">
+        </div>
+        <p id="duration-note" class="duration-note">制限時間：60秒</p>
+        <button class="primary" id="start-btn" disabled>スタート！</button>
       </div>
-      <div class="field hidden" id="age-value-field">
-        <label for="age-value">実年齢</label>
-        <input type="number" id="age-value" min="1" max="120" placeholder="例）35">
-      </div>
-      <p id="duration-note" class="duration-note">制限時間：60秒（管理画面で設定）</p>
-      <button class="primary" id="start-btn" disabled>スタート！</button>
     </section>
 
     <!-- プレイ画面 -->
@@ -52,27 +60,42 @@
         <div class="yen"><span>合計</span> ¥<span id="hud-yen">0</span></div>
       </div>
       <div class="word-card" id="word-card">
+        <div class="word-art" id="word-art"></div>
         <div class="kana" id="word-kana">まぐろ</div>
         <div class="price-tag" id="word-price">150円</div>
       </div>
       <div class="typing-box" id="typing-box"></div>
       <div class="combo-toast" id="combo-toast"></div>
       <div class="trivia-box" id="trivia-box"></div>
-      <p style="color:#7690a5; font-size:13px;">ローマ字で打ってね（例：まぐろ → maguro）</p>
+      <p class="hint">ローマ字で打ってね（例：まぐろ → maguro）</p>
+      <div class="sushi-lane" id="sushi-lane"></div>
     </section>
 
     <!-- 結果画面 -->
-    <section id="screen-result" class="screen hidden">
-      <h2>結果発表！</h2>
-      <div style="text-align:center;">
-        <div class="result-total" id="result-total">0<span>円</span></div>
-        <div style="margin-top:8px;"><span class="result-rank" id="result-rank">見習い</span></div>
+    <section id="screen-result" class="screen screen-wide hidden">
+      <div class="result-grid">
+        <div class="result-main">
+          <h2>結果発表！</h2>
+          <div style="text-align:center;">
+            <div class="result-total" id="result-total">0<span>円</span></div>
+            <div style="margin-top:8px;"><span class="result-rank" id="result-rank">見習い</span></div>
+            <p class="result-today" id="result-today-rank"></p>
+          </div>
+          <div class="result-stats">
+            <div>正解数<b id="result-correct">0</b></div>
+            <div>ミス数<b id="result-mistake">0</b></div>
+          </div>
+          <button class="primary" id="play-again-btn">次の人へ</button>
+        </div>
+        <div class="leaderboard-card">
+          <div class="leaderboard-head">
+            <span class="lb-crown">🏆</span>
+            <span class="lb-title">本日のTOP10</span>
+            <span class="lb-date"></span>
+          </div>
+          <ol class="leaderboard-list"></ol>
+        </div>
       </div>
-      <div class="result-stats">
-        <div>正解数<b id="result-correct">0</b></div>
-        <div>ミス数<b id="result-mistake">0</b></div>
-      </div>
-      <button class="primary" id="play-again-btn">もう一度あそぶ</button>
     </section>
 
   </div>
@@ -83,8 +106,9 @@
 <footer class="app-footer">北九州ITクラブ｜まんまる文化祭 2026.11.21-22</footer>
 <a class="admin-link" href="admin.html">admin</a>
 
-<script src="js/storage.js"></script>
-<script src="js/words.js"></script>
-<script src="js/game.js"></script>
+<script src="js/storage.js?v=3"></script>
+<script src="js/words.js?v=3"></script>
+<script src="js/sushi-art.js?v=3"></script>
+<script src="js/game.js?v=3"></script>
 </body>
 </html>

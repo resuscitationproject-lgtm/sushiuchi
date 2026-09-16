@@ -14,6 +14,7 @@ function checkLogin() {
     renderUploadGrid("left");
     renderUploadGrid("right");
     document.getElementById("duration-input").value = settings.duration;
+    refreshBGMInfo();
   } else {
     document.getElementById("login-error").textContent = "パスワードが違います";
   }
@@ -151,7 +152,61 @@ function changePassword() {
   alert("パスワードを変更しました");
 }
 
+/* ---------- BGM ---------- */
+const previewAudio = new Audio();
+
+async function refreshBGMInfo() {
+  const rec = await loadBGM();
+  document.getElementById("bgm-name").textContent = rec ? `登録中：${rec.name}` : "未登録";
+  if (rec) previewAudio.src = URL.createObjectURL(rec.blob);
+  const vol = Math.round(Number(getSettings().bgmVolume ?? 0.5) * 100);
+  document.getElementById("bgm-volume").value = vol;
+  document.getElementById("bgm-volume-label").textContent = vol;
+}
+
+function initBGMControls() {
+  document.getElementById("bgm-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      await saveBGM(file);
+      await refreshBGMInfo();
+      alert("BGMを登録しました");
+    } catch (err) {
+      console.error(err);
+      alert("BGMの保存に失敗しました（ファイルが大きすぎる可能性があります）");
+    }
+  });
+  document.getElementById("bgm-preview-btn").addEventListener("click", () => {
+    if (!previewAudio.src) return alert("BGMが登録されていません");
+    if (previewAudio.paused) {
+      previewAudio.volume = Number(getSettings().bgmVolume ?? 0.5);
+      previewAudio.play();
+      document.getElementById("bgm-preview-btn").textContent = "停止";
+    } else {
+      previewAudio.pause();
+      document.getElementById("bgm-preview-btn").textContent = "試聴";
+    }
+  });
+  document.getElementById("bgm-delete-btn").addEventListener("click", async () => {
+    if (!confirm("登録中のBGMを削除しますか？")) return;
+    previewAudio.pause();
+    previewAudio.removeAttribute("src");
+    await deleteBGM();
+    await refreshBGMInfo();
+  });
+  document.getElementById("bgm-volume").addEventListener("input", (e) => {
+    const v = Number(e.target.value);
+    document.getElementById("bgm-volume-label").textContent = v;
+    const s = getSettings();
+    s.bgmVolume = v / 100;
+    saveSettings(s);
+    previewAudio.volume = v / 100;
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  initBGMControls();
   document.getElementById("login-btn").addEventListener("click", checkLogin);
   document.getElementById("admin-password").addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkLogin();

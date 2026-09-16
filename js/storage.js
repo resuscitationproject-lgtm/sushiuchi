@@ -14,7 +14,74 @@ const STORAGE_KEYS = {
 const DEFAULT_SETTINGS = {
   duration: 60,          // 秒
   adminPassword: "itclub2026", // 必要に応じて admin.html 上で変更してください
+  bgmVolume: 0.5,        // BGM音量（0〜1）
 };
+
+/* ---------- 日付（当日ランキング用） ---------- */
+function dateKey(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// 古い記録（dateフィールドが無いもの）は "2026/11/21 13:23:00" 形式のtimestampから日付を取り出す
+function resultDate(r) {
+  if (r.date) return r.date;
+  const m = String(r.timestamp || "").match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+  if (!m) return "";
+  return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+}
+
+function getTodayTop(n = 10) {
+  const today = dateKey();
+  return getResults()
+    .filter(r => resultDate(r) === today)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n);
+}
+
+/* ---------- BGM（音声ファイルは大きいので IndexedDB に保存） ---------- */
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open("sushitypeing_db", 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("files");
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function idbPut(key, value) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("files", "readwrite");
+    tx.objectStore("files").put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function idbGet(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("files", "readonly");
+    const req = tx.objectStore("files").get(key);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function idbDelete(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("files", "readwrite");
+    tx.objectStore("files").delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+// { name: "ファイル名", blob: Blob } を保存
+function saveBGM(file) { return idbPut("bgm", { name: file.name, blob: file }); }
+async function loadBGM() { try { return await idbGet("bgm"); } catch (e) { console.warn(e); return null; } }
+function deleteBGM() { return idbDelete("bgm"); }
 
 function loadJSON(key, fallback) {
   try {

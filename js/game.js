@@ -42,30 +42,58 @@ function pickWord() {
   return SUSHI_ITEMS[idx];
 }
 
-function renderLeaderboard() {
-  const board = document.getElementById("leaderboard-list");
-  if (!board) return;
-  const top = getResults()
-    .slice()
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
-  board.innerHTML = "";
-  if (top.length === 0) {
-    board.innerHTML = `<li class="lb-empty">まだ記録がありません。一番乗りを目指そう！</li>`;
-    return;
-  }
-  top.forEach((r, i) => {
-    const li = document.createElement("li");
-    li.className = "lb-row";
-    if (i === 0) li.classList.add("lb-first");
-    li.innerHTML = `
-      <span class="lb-rank">${i + 1}</span>
-      <span class="lb-name">${escapeHTML(r.name)}</span>
-      <span class="lb-age">${escapeHTML(r.ageCategory)}</span>
-      <span class="lb-score">${r.score.toLocaleString()}円</span>
-    `;
-    board.appendChild(li);
+/* 当日のTOP10（10枠すべて表示。空き枠は「ー」） */
+function renderLeaderboard(highlightId) {
+  const d = new Date();
+  document.querySelectorAll(".lb-date").forEach(el => {
+    el.textContent = `${d.getMonth() + 1}/${d.getDate()}`;
   });
+  const top = getTodayTop(10);
+  document.querySelectorAll(".leaderboard-list").forEach(board => {
+    board.innerHTML = "";
+    for (let i = 0; i < 10; i++) {
+      const r = top[i];
+      const li = document.createElement("li");
+      li.className = "lb-row" + (i < 3 ? ` lb-top${i + 1}` : "");
+      if (r && highlightId && r.id === highlightId) li.classList.add("lb-me");
+      li.innerHTML = r
+        ? `<span class="lb-rank">${i + 1}</span>
+           <span class="lb-name">${escapeHTML(r.name)}</span>
+           <span class="lb-age">${escapeHTML(r.ageCategory)}</span>
+           <span class="lb-score">${r.score.toLocaleString()}円</span>`
+        : `<span class="lb-rank">${i + 1}</span>
+           <span class="lb-name lb-vacant">ー</span>
+           <span class="lb-age"></span>
+           <span class="lb-score"></span>`;
+      board.appendChild(li);
+    }
+  });
+}
+
+/* ---------- BGM ---------- */
+const bgm = new Audio();
+bgm.loop = true;
+let bgmReady = false;
+
+async function prepareBGM() {
+  const rec = await loadBGM();
+  if (rec && rec.blob) {
+    bgm.src = URL.createObjectURL(rec.blob);
+    bgmReady = true;
+  }
+}
+
+function playBGM() {
+  if (!bgmReady) return;
+  bgm.volume = Number(getSettings().bgmVolume ?? 0.5);
+  bgm.currentTime = 0;
+  bgm.play().catch(err => console.warn("BGM再生不可:", err));
+}
+
+function stopBGM() {
+  if (!bgmReady) return;
+  bgm.pause();
+  bgm.currentTime = 0;
 }
 
 function escapeHTML(s) {
@@ -123,7 +151,7 @@ function initEntryScreen() {
   });
 
   const durationNote = document.getElementById("duration-note");
-  if (durationNote) durationNote.textContent = `制限時間：${state.duration}秒（管理画面で設定）`;
+  if (durationNote) durationNote.textContent = `制限時間：${state.duration}秒`;
 
   document.getElementById("player-name").addEventListener("input", validateEntry);
   document.getElementById("age-value").addEventListener("input", validateEntry);
@@ -157,6 +185,7 @@ function startGame() {
   showScreen("screen-play");
   document.getElementById("hud-timer").textContent = state.timeLeft;
   document.getElementById("hud-yen").textContent = "0";
+  playBGM();
   nextWord();
 
   state.timerId = setInterval(() => {
@@ -177,6 +206,11 @@ function nextWord() {
   document.getElementById("word-kana").textContent = state.currentItem.kana;
   document.getElementById("word-price").textContent = `${state.currentItem.price}円`;
   document.getElementById("word-card").classList.toggle("rare", !!state.currentItem.rare);
+  const art = document.getElementById("word-art");
+  art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
+  art.classList.remove("arrive");
+  void art.offsetWidth;
+  art.classList.add("arrive");
   document.getElementById("trivia-box").textContent = "";
   document.getElementById("trivia-box").classList.remove("show");
   const box = document.getElementById("typing-box");
@@ -234,6 +268,7 @@ function onWordComplete() {
   showComboToast(state.currentItem.rare ? `レア出現！ +${state.currentItem.price}円` : `+${state.currentItem.price}円`);
   const box = document.getElementById("typing-box");
   box.classList.add("success");
+  flySushi(state.currentItem, document.getElementById("word-art"), document.getElementById("hud-yen"));
 
   const trivia = state.currentItem.trivia;
   const wait = trivia ? 2200 : 180;
@@ -259,11 +294,16 @@ function endGame() {
   state.playing = false;
   clearInterval(state.timerId);
   document.removeEventListener("keydown", onKeyDown);
+  stopBGM();
 
   const ageLabel = AGE_CATEGORIES.find(c => c.key === state.ageCategoryKey)?.label || "";
+  const now = new Date();
+  const id = `${now.getTime()}-${Math.random().toString(36).slice(2, 7)}`;
 
   addResult({
-    timestamp: new Date().toLocaleString("ja-JP"),
+    id,
+    date: dateKey(now),
+    timestamp: now.toLocaleString("ja-JP"),
     name: state.name,
     ageCategory: ageLabel,
     ageValue: state.ageValue,
@@ -277,6 +317,11 @@ function endGame() {
   document.getElementById("result-correct").textContent = state.correctCount;
   document.getElementById("result-mistake").textContent = state.mistakeCount;
 
+  const todayRank = getTodayTop(10).findIndex(r => r.id === id);
+  document.getElementById("result-today-rank").textContent =
+    todayRank >= 0 ? `🎉 本日の${todayRank + 1}位にランクイン！` : "本日のTOP10入りまであと少し！";
+  renderLeaderboard(id);
+
   showScreen("screen-result");
 }
 
@@ -289,7 +334,7 @@ function resetToEntry() {
   state.ageValue = null;
   state.duration = getSettings().duration;
   const durationNote = document.getElementById("duration-note");
-  if (durationNote) durationNote.textContent = `制限時間：${state.duration}秒（管理画面で設定）`;
+  if (durationNote) durationNote.textContent = `制限時間：${state.duration}秒`;
   validateEntry();
   renderLeaderboard();
   showScreen("screen-entry");
@@ -299,6 +344,10 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAds();
   initEntryScreen();
   renderLeaderboard();
+  buildSushiLane(document.getElementById("sushi-lane"));
+  prepareBGM();
+  // 日付が変わった時のために1分ごとにランキングを更新
+  setInterval(() => { if (!state.playing) renderLeaderboard(); }, 60000);
   document.getElementById("play-again-btn").addEventListener("click", resetToEntry);
   showScreen("screen-entry");
 });
