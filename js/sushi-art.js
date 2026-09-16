@@ -56,6 +56,12 @@ function sushiSVG(kind, plateColor) {
         <g transform="translate(42 44)"><circle r="15" fill="#1f2d24"/><circle r="11" fill="#fbfaf4"/><circle r="5" fill="#57b13f"/></g>
         <g transform="translate(78 44)"><circle r="15" fill="#1f2d24"/><circle r="11" fill="#fbfaf4"/><circle r="5" fill="#57b13f"/></g>
       </svg>`;
+    case "place": // 名所：お皿の上に地図ピン
+      return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">${plate}
+        <path d="M60 8 C45 8 36 19 36 31 C36 45 60 60 60 60 C60 60 84 45 84 31 C84 19 75 8 60 8 Z" fill="#d9362b" stroke="#fff" stroke-width="2"/>
+        <circle cx="60" cy="30" r="9" fill="#fff"/>
+        <circle cx="60" cy="30" r="4" fill="#1f6fb2"/>
+      </svg>`;
     case "rare":
       return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="60" cy="64" rx="56" ry="14" fill="#c9971b"/>
@@ -80,11 +86,15 @@ const SUSHI_KIND = {
   "たこ": "tako", "あなご": "tamago",
   "いくら": "gunkan", "うに": "gunkan", "かにみそ": "gunkan", "コーンマヨ": "gunkan",
   "かっぱまき": "maki", "きゅうり": "maki",
+  "あまえび": "ebi", "えんがわ": "white", "ねぎとろ": "toro", "いわし": "white", "さば": "white",
+  "かずのこ": "tamago", "あかがい": "maguro", "とびっこ": "gunkan", "びんちょう": "toro",
+  "ごまさば": "white", "ぬかだき": "white",
 };
 
 function kindFor(item) {
   if (!item) return "maguro";
   if (item.rare) return "rare";
+  if (item.place) return "place";
   return SUSHI_KIND[item.kana] || "maguro";
 }
 

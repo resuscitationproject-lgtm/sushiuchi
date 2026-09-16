@@ -31,7 +31,7 @@ function renderResults() {
       <td>${escapeHTML(r.name)}</td>
       <td>${escapeHTML(r.ageCategory)}</td>
       <td>${r.ageValue != null ? r.ageValue : "-"}</td>
-      <td>${r.score.toLocaleString()}円</td>
+      <td>${r.score.toLocaleString()}円${r.luckyMode ? " 🎰" : ""}</td>
       <td>${r.correctCount}</td>
       <td>${r.mistakeCount}</td>
     `;

@@ -1,7 +1,9 @@
 /* ==========================================================
    寿司ネタ単語データ（寿司の都・北九州／関門海峡テーマ）
    kana   : 画面に表示する見出し（かな/カナ）
-   romaji : 正解として受け付けるローマ字（複数表記OK）
+   romaji : （省略可）正解として受け付けるローマ字。省略すると kana から
+            自動生成します（shi/si、chi/ti、tsu/tu、fu/hu、ji/zi、n/nn などの
+            揺れはすべてOK）
             入力比較時は英字以外（ハイフン等）を除去して比較するため
             "sa-mon" のような表記も自動的に "samon" と同一視されます
    price  : 正解した時に加算される「円」
@@ -58,6 +60,80 @@ const SUSHI_ITEMS = [
     kana: "たいらぎ", romaji: ["tairagi"], price: 320,
     trivia: "タイラギは大きな二枚貝。関門海峡周辺でも水揚げされ、貝柱の甘みが人気だよ。",
   },
+
+  /* --- 追加ネタ --- */
+  { kana: "あまえび",     price: 200 },
+  { kana: "えんがわ",     price: 260 },
+  { kana: "ねぎとろ",     price: 220 },
+  { kana: "いわし",       price: 130 },
+  { kana: "さば",         price: 140 },
+  { kana: "かずのこ",     price: 300 },
+  { kana: "あかがい",     price: 280 },
+  { kana: "とびっこ",     price: 160 },
+  { kana: "びんちょう",   price: 150 },
+  {
+    kana: "ごまさば", price: 240,
+    trivia: "ごまさばは、新鮮なサバをごまだれで食べる福岡の郷土料理だよ。",
+  },
+  {
+    kana: "ぬかだき", price: 230,
+    trivia: "ぬかだき（じんだ煮）は小倉の郷土料理。サバやイワシを、ぬか床（ぬかみそ）で炊くんだ。",
+  },
+];
+
+/* ==========================================================
+   北九州ならではの名所（寿司の都 観光枠）
+   label : 画面に大きく出す漢字表記（入力は kana のローマ字）
+   ========================================================== */
+const PLACE_ITEMS = [
+  {
+    label: "小倉城", kana: "こくらじょう", price: 400, place: true,
+    trivia: "小倉城は1602年に細川忠興（ほそかわただおき）が築いたお城。今は天守閣の中で歴史を学べるよ。",
+  },
+  {
+    label: "門司港レトロ", kana: "もじこうれとろ", price: 450, place: true,
+    trivia: "門司港は明治〜大正に国際貿易港として栄えた港町。当時の洋風の建物が今も残っているよ。",
+  },
+  {
+    label: "若戸大橋", kana: "わかとおおはし", price: 450, place: true,
+    trivia: "若戸大橋は1962年に開通した赤い吊り橋。開通当時は「東洋一」の長さの吊り橋だったよ。",
+  },
+  {
+    label: "関門海峡", kana: "かんもんかいきょう", price: 500, place: true,
+    trivia: "関門海峡は本州（山口県）と九州（福岡県）の間の海峡。いちばん狭い所は1kmもないんだ。",
+  },
+  {
+    label: "関門トンネル", kana: "かんもんとんねる", price: 450, place: true,
+    trivia: "関門トンネルの人道は約780m。海の下を歩いて、福岡県から山口県へ行けるよ！",
+  },
+  {
+    label: "皿倉山", kana: "さらくらやま", price: 400, place: true,
+    trivia: "皿倉山は夜景の名所。北九州市は「日本新三大夜景」に選ばれているよ。",
+  },
+  {
+    label: "八幡製鐵所", kana: "やはたせいてつしょ", price: 500, place: true,
+    trivia: "官営八幡製鐵所は1901年に操業開始。世界遺産「明治日本の産業革命遺産」のひとつだよ。",
+  },
+  {
+    label: "旦過市場", kana: "たんがいちば", price: 350, place: true,
+    trivia: "旦過市場は「北九州の台所」と呼ばれる市場。新鮮な魚やおかずのお店が並ぶよ。",
+  },
+  {
+    label: "河内藤園", kana: "かわちふじえん", price: 400, place: true,
+    trivia: "河内藤園は、藤の花のトンネルで有名。海外から見に来る人もいるほど人気だよ。",
+  },
+  {
+    label: "平尾台", kana: "ひらおだい", price: 350, place: true,
+    trivia: "平尾台は石灰岩の白い岩が広がるカルスト台地。日本三大カルストのひとつだよ。",
+  },
+  {
+    label: "和布刈神社", kana: "めかりじんじゃ", price: 400, place: true,
+    trivia: "和布刈神社は関門海峡のすぐそばの神社。旧暦の元日にワカメを刈る神事が行われるよ。",
+  },
+  {
+    label: "到津の森公園", kana: "いとうづのもりこうえん", price: 450, place: true,
+    trivia: "到津の森公園は、市民に支えられて続いている北九州の動物園だよ。",
+  },
 ];
 
 /* ランク表（合計円に応じたコメント。寿司打を参考にしたオリジナル） */
@@ -81,7 +157,9 @@ function getRank(total) {
 /* ==========================================================
    レア問題（出現率の低いお楽しみ枠）
    北九州ITクラブ／関係者にちなんだ小ネタです。
-   出現確率は RARE_ITEM_CHANCE（game.js）で調整できます。
+   ・通常：1回のゲームにつき1問だけ、ランダムなタイミングで出現
+   ・ラッキーモード（約10人に1人）：毎問 1/3 の確率でレア問題が出現
+   確率は game.js の LUCKY_MODE_CHANCE / LUCKY_RARE_CHANCE で調整できます。
    ========================================================== */
 const RARE_ITEMS = [
   { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true },
@@ -89,4 +167,116 @@ const RARE_ITEMS = [
   { kana: "キャンドル",   romaji: ["kyandoru"],    price: 777, rare: true },
   { kana: "ビーウィズ",   romaji: ["biuizu", "biiuizu", "bi-uizu"], price: 777, rare: true },
   { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true },
+  { kana: "マツケンサンバ", price: 777, rare: true },
 ];
+
+/* ==========================================================
+   かな → ローマ字（入力ゆれを全部許容）
+   ========================================================== */
+const KANA_ROMAJI = {
+  "あ":["a"],"い":["i"],"う":["u","wu"],"え":["e"],"お":["o"],
+  "か":["ka","ca"],"き":["ki"],"く":["ku","cu"],"け":["ke"],"こ":["ko","co"],
+  "さ":["sa"],"し":["shi","si","ci"],"す":["su"],"せ":["se","ce"],"そ":["so"],
+  "た":["ta"],"ち":["chi","ti"],"つ":["tsu","tu"],"て":["te"],"と":["to"],
+  "な":["na"],"に":["ni"],"ぬ":["nu"],"ね":["ne"],"の":["no"],
+  "は":["ha"],"ひ":["hi"],"ふ":["fu","hu"],"へ":["he"],"ほ":["ho"],
+  "ま":["ma"],"み":["mi"],"む":["mu"],"め":["me"],"も":["mo"],
+  "や":["ya"],"ゆ":["yu"],"よ":["yo"],
+  "ら":["ra"],"り":["ri"],"る":["ru"],"れ":["re"],"ろ":["ro"],
+  "わ":["wa"],"を":["wo"],
+  "が":["ga"],"ぎ":["gi"],"ぐ":["gu"],"げ":["ge"],"ご":["go"],
+  "ざ":["za"],"じ":["ji","zi"],"ず":["zu"],"ぜ":["ze"],"ぞ":["zo"],
+  "だ":["da"],"ぢ":["di"],"づ":["du","dzu"],"で":["de"],"ど":["do"],
+  "ば":["ba"],"び":["bi"],"ぶ":["bu"],"べ":["be"],"ぼ":["bo"],
+  "ぱ":["pa"],"ぴ":["pi"],"ぷ":["pu"],"ぺ":["pe"],"ぽ":["po"],
+  "ゔ":["vu"],
+  "ぁ":["xa","la"],"ぃ":["xi","li"],"ぅ":["xu","lu"],"ぇ":["xe","le"],"ぉ":["xo","lo"],
+  "ゃ":["xya","lya"],"ゅ":["xyu","lyu"],"ょ":["xyo","lyo"],
+  "きゃ":["kya"],"きゅ":["kyu"],"きょ":["kyo"],
+  "しゃ":["sha","sya"],"しゅ":["shu","syu"],"しょ":["sho","syo"],"しぇ":["she","sye"],
+  "ちゃ":["cha","tya","cya"],"ちゅ":["chu","tyu","cyu"],"ちょ":["cho","tyo","cyo"],"ちぇ":["che","tye"],
+  "にゃ":["nya"],"にゅ":["nyu"],"にょ":["nyo"],
+  "ひゃ":["hya"],"ひゅ":["hyu"],"ひょ":["hyo"],
+  "みゃ":["mya"],"みゅ":["myu"],"みょ":["myo"],
+  "りゃ":["rya"],"りゅ":["ryu"],"りょ":["ryo"],
+  "ぎゃ":["gya"],"ぎゅ":["gyu"],"ぎょ":["gyo"],
+  "じゃ":["ja","zya","jya"],"じゅ":["ju","zyu","jyu"],"じょ":["jo","zyo","jyo"],"じぇ":["je","zye"],
+  "びゃ":["bya"],"びゅ":["byu"],"びょ":["byo"],
+  "ぴゃ":["pya"],"ぴゅ":["pyu"],"ぴょ":["pyo"],
+  "ふぁ":["fa"],"ふぃ":["fi"],"ふぇ":["fe"],"ふぉ":["fo"],
+  "うぃ":["wi"],"うぇ":["we"],"てぃ":["thi"],"でぃ":["dhi"],
+};
+
+function toHiragana(str) {
+  return str.replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+function kanaUnitOptions(kana) {
+  const h = toHiragana(kana).replace(/[ー\s・！!？?]/g, "");
+  // 「音のかたまり」に分解（「きゃ」など2文字の組み合わせを優先）
+  const units = [];
+  for (let i = 0; i < h.length; ) {
+    const two = h.slice(i, i + 2);
+    if (two.length === 2 && KANA_ROMAJI[two]) { units.push(two); i += 2; continue; }
+    units.push(h[i]); i += 1;
+  }
+  return units.map((u, idx) => {
+    const next = units[idx + 1];
+    const nextOpts = next ? (KANA_ROMAJI[next] || [next]) : [];
+    if (u === "っ") {
+      const doubled = [...new Set(nextOpts.filter(r => /^[bcdfghjklmpqrstvwxyz]/.test(r)).map(r => r[0]))];
+      return [...doubled, "xtu", "ltu", "xtsu", "ltsu"];
+    }
+    if (u === "ん") {
+      if (!next) return ["nn", "n", "xn"];
+      // 母音・や行の前は「nn」必須。な行の前は子ども向けに「n」1つでもOK
+      const needsNN = nextOpts.some(r => /^[aiueoy]/.test(r));
+      const mOK = nextOpts.some(r => /^[mbp]/.test(r)) ? ["m"] : [];
+      return needsNN ? ["nn", "xn"] : ["n", "nn", "xn", ...mOK];
+    }
+    if (u.length === 2) { // 「き＋ゃ」の分割入力も許可
+      const split = (KANA_ROMAJI[u[0]] || []).flatMap(a => (KANA_ROMAJI[u[1]] || []).map(b => a + b));
+      return [...KANA_ROMAJI[u], ...split];
+    }
+    return KANA_ROMAJI[u] || [u];
+  });
+}
+
+/* 入力途中の文字列 typed が、その問題の正しい打ち方の「途中」か「完成」かを判定 */
+function matchTyping(item, typed) {
+  if (!item._opts) {
+    item._opts = kanaUnitOptions(item.kana);
+    item._manual = (item.romaji || []).map(r => r.toLowerCase().replace(/[^a-z]/g, ""));
+  }
+  const opts = item._opts, n = opts.length, L = typed.length;
+  let prefix = item._manual.some(r => r.startsWith(typed));
+  let complete = item._manual.includes(typed);
+  const memo = new Map();
+  const walk = (i, p) => {
+    const key = i * 1000 + p;
+    if (memo.has(key)) return;
+    memo.set(key, true);
+    if (p === L) {
+      prefix = true;
+      if (i === n) complete = true;
+      return;
+    }
+    if (i === n) return;
+    for (const o of opts[i]) {
+      const rest = typed.slice(p, p + o.length);
+      if (p + o.length > L) {
+        if (o.startsWith(typed.slice(p))) prefix = true;
+      } else if (rest === o) {
+        walk(i + 1, p + o.length);
+      }
+    }
+  };
+  walk(0, 0);
+  return { prefix, complete };
+}
+
+/* 表示用：いちばん標準的なローマ字 */
+function defaultRomaji(item) {
+  if (item.romaji && item.romaji[0]) return item.romaji[0].replace(/[^a-z]/gi, "").toLowerCase();
+  return kanaUnitOptions(item.kana).map(o => o[0]).join("");
+}

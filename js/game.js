@@ -22,24 +22,43 @@ const state = {
   correctCount: 0,
   mistakeCount: 0,
   currentItem: null,
-  candidates: [],
   typed: "",
   playing: false,
+  luckyMode: false,
+  rareUsed: false,
+  rareAt: 0,
+  rareCount: 0,
+  lastKana: "",
 };
 
-const RARE_ITEM_CHANCE = 0.06; // レア問題が出る確率（6%）
+/* レア問題の出方
+   ・通常：1回のゲームで1問だけ。ゲーム時間の20〜70%のどこかでランダムに出現
+   ・ラッキーモード：LUCKY_MODE_CHANCE の確率（10人に1人）で発動し、毎問 1/3 でレア */
+const LUCKY_MODE_CHANCE = 0.1;
+const LUCKY_RARE_CHANCE = 1 / 3;
 
-function normalize(str) {
-  return str.toLowerCase().replace(/[^a-z]/g, "");
+function randomFrom(list) {
+  // 直前と同じ問題が続かないようにする
+  let item;
+  for (let tries = 0; tries < 5; tries++) {
+    item = list[Math.floor(Math.random() * list.length)];
+    if (item.kana !== state.lastKana) break;
+  }
+  return item;
 }
 
 function pickWord() {
-  if (Math.random() < RARE_ITEM_CHANCE) {
-    const rIdx = Math.floor(Math.random() * RARE_ITEMS.length);
-    return RARE_ITEMS[rIdx];
+  const elapsed = state.duration - state.timeLeft;
+  let useRare = false;
+  if (state.luckyMode) {
+    useRare = Math.random() < LUCKY_RARE_CHANCE;
+  } else if (!state.rareUsed && elapsed >= state.rareAt) {
+    useRare = true;
+    state.rareUsed = true;
   }
-  const idx = Math.floor(Math.random() * SUSHI_ITEMS.length);
-  return SUSHI_ITEMS[idx];
+  const item = useRare ? randomFrom(RARE_ITEMS) : randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS]);
+  state.lastKana = item.kana;
+  return item;
 }
 
 /* 当日のTOP10（10枠すべて表示。空き枠は「ー」） */
@@ -156,13 +175,19 @@ function startGame() {
   state.mistakeCount = 0;
   state.timeLeft = state.duration;
   state.currentItem = null;
+  state.lastKana = "";
+  state.rareCount = 0;
+  state.rareUsed = false;
+  state.rareAt = Math.round(state.duration * (0.2 + Math.random() * 0.5));
+  state.luckyMode = Math.random() < LUCKY_MODE_CHANCE;
   state.playing = true;
+  document.getElementById("lucky-banner").classList.toggle("hidden", !state.luckyMode);
 
   showScreen("screen-play");
   document.getElementById("hud-timer").textContent = state.timeLeft;
   document.getElementById("hud-yen").textContent = "0";
-  speak("よーい、スタート！");
-  setTimeout(() => { if (state.playing) nextWord(); }, 900);
+  speak(state.luckyMode ? "ラッキーモード！レア問題が、出まくるぞ！" : "よーい、スタート！");
+  setTimeout(() => { if (state.playing) nextWord(); }, state.luckyMode ? 2200 : 900);
 
   state.timerId = setInterval(() => {
     state.timeLeft -= 1;
@@ -177,11 +202,15 @@ function startGame() {
 
 function nextWord() {
   state.currentItem = pickWord();
-  state.candidates = state.currentItem.romaji.map(normalize);
   state.typed = "";
+  if (state.currentItem.rare) state.rareCount += 1;
+  document.getElementById("word-label").textContent = state.currentItem.label || "";
+  document.getElementById("word-label").classList.toggle("hidden", !state.currentItem.label);
   document.getElementById("word-kana").textContent = state.currentItem.kana;
+  document.getElementById("word-romaji").textContent = defaultRomaji(state.currentItem);
   document.getElementById("word-price").textContent = `${state.currentItem.price}円`;
   document.getElementById("word-card").classList.toggle("rare", !!state.currentItem.rare);
+  document.getElementById("word-card").classList.toggle("place", !!state.currentItem.place);
   speak(state.currentItem.rare ? `レア問題！${state.currentItem.kana}` : state.currentItem.kana);
   const art = document.getElementById("word-art");
   art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
@@ -197,12 +226,10 @@ function nextWord() {
 
 function onKeyDown(e) {
   if (!state.playing || !state.currentItem) return;
+  if (state.typed === null) return; // 正解直後の待ち時間
   if (e.key === "Backspace") {
     if (state.typed.length > 0) {
       state.typed = state.typed.slice(0, -1);
-      state.candidates = state.currentItem.romaji
-        .map(normalize)
-        .filter(c => c.startsWith(state.typed));
       updateTypingBox(false);
     }
     e.preventDefault();
@@ -210,16 +237,13 @@ function onKeyDown(e) {
   }
   if (!/^[a-zA-Z]$/.test(e.key)) return;
 
-  const key = e.key.toLowerCase();
-  const attempt = state.typed + key;
-  const allVariants = state.currentItem.romaji.map(normalize);
-  const nextCandidates = allVariants.filter(c => c.startsWith(attempt));
+  const attempt = state.typed + e.key.toLowerCase();
+  const m = matchTyping(state.currentItem, attempt);
 
-  if (nextCandidates.length > 0) {
+  if (m.prefix) {
     state.typed = attempt;
-    state.candidates = nextCandidates;
     updateTypingBox(false);
-    if (allVariants.includes(attempt)) {
+    if (m.complete) {
       onWordComplete();
     }
   } else {
@@ -231,7 +255,7 @@ function onKeyDown(e) {
 
 function updateTypingBox(isError) {
   const box = document.getElementById("typing-box");
-  box.textContent = state.typed;
+  box.textContent = state.typed || "";
   box.classList.toggle("error", isError);
   if (isError) {
     setTimeout(() => box.classList.remove("error"), 150);
@@ -246,6 +270,7 @@ function onWordComplete() {
   const box = document.getElementById("typing-box");
   box.classList.add("success");
   flySushi(state.currentItem, document.getElementById("word-art"), document.getElementById("hud-yen"));
+  state.typed = null; // 次の問題が出るまで入力を受け付けない
 
   const trivia = state.currentItem.trivia;
   const wait = trivia ? 2200 : 180;
@@ -272,6 +297,7 @@ function endGame() {
   clearInterval(state.timerId);
   document.removeEventListener("keydown", onKeyDown);
   speak("しゅーりょー！");
+  document.getElementById("lucky-banner").classList.add("hidden");
 
   const ageLabel = AGE_CATEGORIES.find(c => c.key === state.ageCategoryKey)?.label || "";
   const now = new Date();
@@ -287,6 +313,8 @@ function endGame() {
     score: state.score,
     correctCount: state.correctCount,
     mistakeCount: state.mistakeCount,
+    luckyMode: state.luckyMode,
+    rareCount: state.rareCount,
   });
 
   document.getElementById("result-total").innerHTML = `${state.score.toLocaleString()}<span>円</span>`;

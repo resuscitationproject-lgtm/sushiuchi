@@ -97,7 +97,7 @@ function saveSettings(s) {
 }
 
 function toCSV(results) {
-  const header = ["日時", "ニックネーム", "年齢層", "実年齢", "スコア(円)", "正解数", "ミス数"];
+  const header = ["日時", "ニックネーム", "年齢層", "実年齢", "スコア(円)", "正解数", "ミス数", "ラッキーモード", "レア出題数"];
   const rows = results.map(r => [
     r.timestamp,
     csvEscape(r.name),
@@ -106,6 +106,8 @@ function toCSV(results) {
     r.score,
     r.correctCount,
     r.mistakeCount,
+    r.luckyMode ? "あり" : "",
+    r.rareCount != null ? r.rareCount : "",
   ].join(","));
   return [header.join(","), ...rows].join("\r\n");
 }

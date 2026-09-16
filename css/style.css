@@ -489,3 +489,17 @@ header.app-header .partner {
 header.app-header .partner-logo { height: 52px; width: auto; display: block; }
 
 .tts-sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px; }
+
+/* ---------- 名所・ラッキーモード ---------- */
+.word-label { font-size: clamp(30px, 5vw, 46px); font-weight: 800; color: var(--club-blue-dark); line-height: 1.2; }
+.word-card.place .kana { font-size: clamp(18px, 2.6vw, 24px); color: var(--club-blue); }
+.word-card.place { background: linear-gradient(160deg, #f5f9fd, #e3f0fb); border-color: var(--club-blue-light); }
+.word-romaji { font-family: "Courier New", monospace; font-size: 15px; color: #8aa3b8; letter-spacing: 1px; margin-top: 2px; }
+.lucky-banner {
+  background: linear-gradient(90deg, #d9362b, #f7c948, #d9362b);
+  background-size: 200% 100%;
+  color: #fff; font-weight: 900; font-size: 18px; letter-spacing: .05em;
+  padding: 6px 18px; border-radius: 20px; text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  animation: luckyflow 1.5s linear infinite;
+}
+@keyframes luckyflow { to { background-position: 200% 0; } }
