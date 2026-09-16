@@ -72,6 +72,61 @@ header.app-header .accent-dot {
   margin: 0 4px;
 }
 
+header.app-header .capital-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--club-yellow);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ---------- leaderboard bar ---------- */
+.leaderboard-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--club-blue-dark);
+  color: #fff;
+  padding: 6px 16px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.leaderboard-title {
+  font-weight: 800;
+  color: var(--club-yellow);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.leaderboard-list {
+  display: flex;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.leaderboard-list .lb-empty {
+  font-size: 12px;
+  color: #cfe0ee;
+}
+.leaderboard-list .lb-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 12px;
+}
+.leaderboard-list .lb-row.lb-first {
+  background: var(--club-yellow);
+  color: var(--text-dark);
+  font-weight: 800;
+}
+.leaderboard-list .lb-rank { font-weight: 800; }
+.leaderboard-list .lb-age { color: #cfe0ee; font-size: 11px; }
+.leaderboard-list .lb-row.lb-first .lb-age { color: var(--club-blue-dark); }
+.leaderboard-list .lb-score { font-weight: 700; }
+
 /* ---------- layout ---------- */
 main.layout {
   flex: 1;
@@ -167,17 +222,13 @@ main.layout {
   color: #fff;
 }
 
-.duration-row { display: flex; gap: 8px; justify-content: center; }
-.duration-row button {
-  padding: 8px 14px;
-  border-radius: 20px;
-  border: 2px solid #cfe0ee;
-  background: #f5f9fd;
-  cursor: pointer;
+.duration-note {
+  text-align: center;
+  font-size: 13px;
+  color: var(--club-blue);
   font-weight: 600;
-  color: var(--club-blue-dark);
+  margin: 0;
 }
-.duration-row button.selected { background: var(--club-yellow); border-color: var(--club-yellow); color: var(--text-dark); }
 
 button.primary {
   padding: 14px 20px;
@@ -229,6 +280,30 @@ button.secondary {
 }
 .word-card .kana { font-size: clamp(30px, 5vw, 46px); font-weight: 700; color: var(--text-dark); }
 .word-card .price-tag { margin-top: 6px; font-size: 14px; color: var(--club-blue); font-weight: 600; }
+.word-card.rare {
+  background: linear-gradient(120deg, #fff7e0, #ffe9b3);
+  border-color: var(--club-yellow);
+  box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.4);
+}
+.word-card.rare .kana { color: #a8760a; }
+
+.trivia-box {
+  max-width: 480px;
+  min-height: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--club-blue-dark);
+  background: #eef8f0;
+  border: 1px solid #cdeed6;
+  border-radius: 10px;
+  padding: 0;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.trivia-box.show {
+  opacity: 1;
+  padding: 8px 14px;
+}
 
 .typing-box {
   font-family: "Courier New", monospace;

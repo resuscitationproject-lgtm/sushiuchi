@@ -27,13 +27,51 @@ const state = {
   playing: false,
 };
 
+const RARE_ITEM_CHANCE = 0.06; // レア問題が出る確率（6%）
+
 function normalize(str) {
   return str.toLowerCase().replace(/[^a-z]/g, "");
 }
 
 function pickWord() {
+  if (Math.random() < RARE_ITEM_CHANCE) {
+    const rIdx = Math.floor(Math.random() * RARE_ITEMS.length);
+    return RARE_ITEMS[rIdx];
+  }
   const idx = Math.floor(Math.random() * SUSHI_ITEMS.length);
   return SUSHI_ITEMS[idx];
+}
+
+function renderLeaderboard() {
+  const board = document.getElementById("leaderboard-list");
+  if (!board) return;
+  const top = getResults()
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+  board.innerHTML = "";
+  if (top.length === 0) {
+    board.innerHTML = `<li class="lb-empty">まだ記録がありません。一番乗りを目指そう！</li>`;
+    return;
+  }
+  top.forEach((r, i) => {
+    const li = document.createElement("li");
+    li.className = "lb-row";
+    if (i === 0) li.classList.add("lb-first");
+    li.innerHTML = `
+      <span class="lb-rank">${i + 1}</span>
+      <span class="lb-name">${escapeHTML(r.name)}</span>
+      <span class="lb-age">${escapeHTML(r.ageCategory)}</span>
+      <span class="lb-score">${r.score.toLocaleString()}円</span>
+    `;
+    board.appendChild(li);
+  });
+}
+
+function escapeHTML(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
 }
 
 function renderAds() {
@@ -84,14 +122,8 @@ function initEntryScreen() {
     ageGrid.appendChild(btn);
   });
 
-  document.querySelectorAll(".duration-row button").forEach(btn => {
-    btn.classList.toggle("selected", Number(btn.dataset.sec) === state.duration);
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".duration-row button").forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      state.duration = Number(btn.dataset.sec);
-    });
-  });
+  const durationNote = document.getElementById("duration-note");
+  if (durationNote) durationNote.textContent = `制限時間：${state.duration}秒（管理画面で設定）`;
 
   document.getElementById("player-name").addEventListener("input", validateEntry);
   document.getElementById("age-value").addEventListener("input", validateEntry);
@@ -144,6 +176,9 @@ function nextWord() {
   state.typed = "";
   document.getElementById("word-kana").textContent = state.currentItem.kana;
   document.getElementById("word-price").textContent = `${state.currentItem.price}円`;
+  document.getElementById("word-card").classList.toggle("rare", !!state.currentItem.rare);
+  document.getElementById("trivia-box").textContent = "";
+  document.getElementById("trivia-box").classList.remove("show");
   const box = document.getElementById("typing-box");
   box.textContent = "";
   box.classList.remove("error", "success");
@@ -196,12 +231,20 @@ function onWordComplete() {
   state.score += state.currentItem.price;
   state.correctCount += 1;
   document.getElementById("hud-yen").textContent = state.score.toLocaleString();
-  showComboToast(`+${state.currentItem.price}円`);
+  showComboToast(state.currentItem.rare ? `レア出現！ +${state.currentItem.price}円` : `+${state.currentItem.price}円`);
   const box = document.getElementById("typing-box");
   box.classList.add("success");
+
+  const trivia = state.currentItem.trivia;
+  const wait = trivia ? 2200 : 180;
+  if (trivia) {
+    const tbox = document.getElementById("trivia-box");
+    tbox.textContent = `💡 ${trivia}`;
+    tbox.classList.add("show");
+  }
   setTimeout(() => {
     if (state.playing) nextWord();
-  }, 180);
+  }, wait);
 }
 
 function showComboToast(text) {
@@ -244,13 +287,18 @@ function resetToEntry() {
   document.querySelectorAll(".age-btn").forEach(b => b.classList.remove("selected"));
   state.ageCategoryKey = null;
   state.ageValue = null;
+  state.duration = getSettings().duration;
+  const durationNote = document.getElementById("duration-note");
+  if (durationNote) durationNote.textContent = `制限時間：${state.duration}秒（管理画面で設定）`;
   validateEntry();
+  renderLeaderboard();
   showScreen("screen-entry");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   renderAds();
   initEntryScreen();
+  renderLeaderboard();
   document.getElementById("play-again-btn").addEventListener("click", resetToEntry);
   showScreen("screen-entry");
 });

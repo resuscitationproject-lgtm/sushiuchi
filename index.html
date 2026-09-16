@@ -10,8 +10,16 @@
 
 <header class="app-header">
   <img class="logo" src="assets/itclub-logo.jpg" alt="北九州ITクラブ">
-  <h1>寿司打ちタイピング大会<span class="accent-dot"></span></h1>
+  <div>
+    <h1>寿司打ちタイピング大会<span class="accent-dot"></span></h1>
+    <div class="capital-tag">北九州市は、寿司の都。</div>
+  </div>
 </header>
+
+<div class="leaderboard-bar">
+  <span class="leaderboard-title">🏆 TOP10</span>
+  <ol id="leaderboard-list" class="leaderboard-list"></ol>
+</div>
 
 <main class="layout">
   <div class="ad-column" id="ads-left"></div>
@@ -33,14 +41,7 @@
         <label for="age-value">実年齢</label>
         <input type="number" id="age-value" min="1" max="120" placeholder="例）35">
       </div>
-      <div class="field">
-        <label>制限時間</label>
-        <div class="duration-row">
-          <button type="button" data-sec="60">60秒</button>
-          <button type="button" data-sec="90">90秒</button>
-          <button type="button" data-sec="120">120秒</button>
-        </div>
-      </div>
+      <p id="duration-note" class="duration-note">制限時間：60秒（管理画面で設定）</p>
       <button class="primary" id="start-btn" disabled>スタート！</button>
     </section>
 
@@ -50,12 +51,13 @@
         <div>残り時間: <span class="timer" id="hud-timer">60</span> 秒</div>
         <div class="yen"><span>合計</span> ¥<span id="hud-yen">0</span></div>
       </div>
-      <div class="word-card">
+      <div class="word-card" id="word-card">
         <div class="kana" id="word-kana">まぐろ</div>
         <div class="price-tag" id="word-price">150円</div>
       </div>
       <div class="typing-box" id="typing-box"></div>
       <div class="combo-toast" id="combo-toast"></div>
+      <div class="trivia-box" id="trivia-box"></div>
       <p style="color:#7690a5; font-size:13px;">ローマ字で打ってね（例：まぐろ → maguro）</p>
     </section>
 
