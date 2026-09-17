@@ -40,10 +40,12 @@ const LUCKY_RARE_CHANCE = 1 / 3;
 const HARD_CHANCE = 1 / 10; // 難関問題：全体の約1/10
 
 function randomFrom(list) {
-  // 直前と同じ問題が続かないようにする
+  // weight（出やすさ）で重み付け抽選。直前と同じ問題が続かないようにする
+  const total = list.reduce((sum, it) => sum + (it.weight || 1), 0);
   let item;
   for (let tries = 0; tries < 5; tries++) {
-    item = list[Math.floor(Math.random() * list.length)];
+    let r = Math.random() * total;
+    item = list.find(it => (r -= (it.weight || 1)) < 0) || list[list.length - 1];
     if (item.kana !== state.lastKana) break;
   }
   return item;

@@ -165,7 +165,7 @@ const RARE_ITEMS = [
   { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true },
   { kana: "はやしだ",     romaji: ["hayashida"],   price: 777, rare: true },
   { kana: "キャンドル",   romaji: ["kyandoru"],    price: 777, rare: true },
-  { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg" },
+  { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg", weight: 3 },
   { kana: "マツケンサンバ", price: 777, rare: true },
   { kana: "ちいかわ",     price: 777, rare: true },
 ];
@@ -176,12 +176,13 @@ const RARE_ITEMS = [
    romaji : 英字のまま打つ言葉などは手書きで指定（かなのローマ字も受付）
    確率は game.js の HARD_CHANCE で調整できます。
    photo  : （任意）出題時にイラストの代わりに表示する写真（レア問題でも使えます）
+   weight : （任意）出やすさ。省略時は1。3にすると他の問題の3倍出やすくなります
    ========================================================== */
 const HARD_ITEMS = [
   { label: "BeWith", kana: "ビーウィズ", romaji: ["bewith"], price: 1500, hard: true, photo: "assets/photos/bewith.jpg" },
   { label: "チュッパチャップス", kana: "ちゅっぱちゃっぷす", price: 1500, hard: true },
   { label: "東京特許許可局", kana: "とうきょうとっきょきょかきょく", price: 1500, hard: true },
-  { label: "Aぇグループ", kana: "ええぐるーぷ", price: 1500, hard: true },
+  { label: "Aぇグループ", kana: "ええぐるーぷ", price: 1500, hard: true, weight: 3 },
 ];
 
 /* ==========================================================
