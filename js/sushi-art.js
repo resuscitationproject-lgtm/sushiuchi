@@ -62,6 +62,13 @@ function sushiSVG(kind, plateColor) {
         <circle cx="60" cy="30" r="9" fill="#fff"/>
         <circle cx="60" cy="30" r="4" fill="#1f6fb2"/>
       </svg>`;
+    case "hard": // 難関：銀の皿に「難」
+      return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="60" cy="64" rx="56" ry="14" fill="#7d8b98"/>
+        <ellipse cx="60" cy="61" rx="46" ry="10" fill="#dfe6ec"/>
+        <circle cx="60" cy="34" r="24" fill="#1b2733" stroke="#c9d3dc" stroke-width="3"/>
+        <text x="60" y="43" text-anchor="middle" font-size="26" font-weight="900" fill="#ffffff" font-family="sans-serif">難</text>
+      </svg>`;
     case "rare":
       return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="60" cy="64" rx="56" ry="14" fill="#c9971b"/>
@@ -94,6 +101,7 @@ const SUSHI_KIND = {
 function kindFor(item) {
   if (!item) return "maguro";
   if (item.rare) return "rare";
+  if (item.hard) return "hard";
   if (item.place) return "place";
   return SUSHI_KIND[item.kana] || "maguro";
 }
@@ -118,7 +126,7 @@ function flySushi(item, fromEl, toEl) {
   const b = toEl.getBoundingClientRect();
   const fly = document.createElement("div");
   fly.className = "fly-sushi";
-  fly.innerHTML = sushiSVG(kindFor(item), item.rare ? "#c9971b" : PLATE_COLORS[Math.floor(Math.random() * PLATE_COLORS.length)]);
+  fly.innerHTML = sushiSVG(kindFor(item), item.rare ? "#c9971b" : item.hard ? "#8e9aa6" : PLATE_COLORS[Math.floor(Math.random() * PLATE_COLORS.length)]);
   fly.style.left = `${a.left + a.width / 2 - 45}px`;
   fly.style.top = `${a.top + a.height / 2 - 30}px`;
   fly.style.setProperty("--dx", `${b.left + b.width / 2 - (a.left + a.width / 2)}px`);

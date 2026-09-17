@@ -503,3 +503,13 @@ header.app-header .partner-logo { height: 52px; width: auto; display: block; }
   animation: luckyflow 1.5s linear infinite;
 }
 @keyframes luckyflow { to { background-position: 200% 0; } }
+
+/* ---------- 難関問題 ---------- */
+.word-card.hard {
+  background: linear-gradient(160deg, #eef2f5, #cfd8e0);
+  border-color: #7d8b98;
+  box-shadow: 0 0 0 3px rgba(125, 139, 152, 0.35);
+}
+.word-card.hard .word-label { color: #1b2733; }
+.word-card.hard .kana { font-size: clamp(16px, 2.2vw, 22px); color: #4a5a68; }
+.word-card.hard .price-tag::before { content: "難関！ "; color: #d9362b; font-weight: 900; }

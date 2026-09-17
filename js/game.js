@@ -28,6 +28,7 @@ const state = {
   rareUsed: false,
   rareAt: 0,
   rareCount: 0,
+  hardCount: 0,
   lastKana: "",
 };
 
@@ -36,6 +37,7 @@ const state = {
    ・ラッキーモード：LUCKY_MODE_CHANCE の確率（10人に1人）で発動し、毎問 1/3 でレア */
 const LUCKY_MODE_CHANCE = 0.1;
 const LUCKY_RARE_CHANCE = 1 / 3;
+const HARD_CHANCE = 1 / 10; // 難関問題：全体の約1/10
 
 function randomFrom(list) {
   // 直前と同じ問題が続かないようにする
@@ -56,7 +58,10 @@ function pickWord() {
     useRare = true;
     state.rareUsed = true;
   }
-  const item = useRare ? randomFrom(RARE_ITEMS) : randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS]);
+  let item;
+  if (useRare) item = randomFrom(RARE_ITEMS);
+  else if (Math.random() < HARD_CHANCE) item = randomFrom(HARD_ITEMS);
+  else item = randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS]);
   state.lastKana = item.kana;
   return item;
 }
@@ -177,6 +182,7 @@ function startGame() {
   state.currentItem = null;
   state.lastKana = "";
   state.rareCount = 0;
+  state.hardCount = 0;
   state.rareUsed = false;
   state.rareAt = Math.round(state.duration * (0.2 + Math.random() * 0.5));
   state.luckyMode = Math.random() < LUCKY_MODE_CHANCE;
@@ -204,6 +210,7 @@ function nextWord() {
   state.currentItem = pickWord();
   state.typed = "";
   if (state.currentItem.rare) state.rareCount += 1;
+  if (state.currentItem.hard) state.hardCount += 1;
   document.getElementById("word-label").textContent = state.currentItem.label || "";
   document.getElementById("word-label").classList.toggle("hidden", !state.currentItem.label);
   document.getElementById("word-kana").textContent = state.currentItem.kana;
@@ -211,9 +218,11 @@ function nextWord() {
   document.getElementById("word-price").textContent = `${state.currentItem.price}円`;
   document.getElementById("word-card").classList.toggle("rare", !!state.currentItem.rare);
   document.getElementById("word-card").classList.toggle("place", !!state.currentItem.place);
-  speak(state.currentItem.rare ? `レア問題！${state.currentItem.kana}` : state.currentItem.kana);
+  document.getElementById("word-card").classList.toggle("hard", !!state.currentItem.hard);
+  const it = state.currentItem;
+  speak(it.rare ? `レア問題！${it.kana}` : it.hard ? `難関問題！${it.kana}` : it.kana);
   const art = document.getElementById("word-art");
-  art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
+  art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : state.currentItem.hard ? "#8e9aa6" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
   art.classList.remove("arrive");
   void art.offsetWidth;
   art.classList.add("arrive");
@@ -266,7 +275,8 @@ function onWordComplete() {
   state.score += state.currentItem.price;
   state.correctCount += 1;
   document.getElementById("hud-yen").textContent = state.score.toLocaleString();
-  showComboToast(state.currentItem.rare ? `レア出現！ +${state.currentItem.price}円` : `+${state.currentItem.price}円`);
+  const ci = state.currentItem;
+  showComboToast(ci.rare ? `レア出現！ +${ci.price}円` : ci.hard ? `難関突破！ +${ci.price.toLocaleString()}円` : `+${ci.price}円`);
   const box = document.getElementById("typing-box");
   box.classList.add("success");
   flySushi(state.currentItem, document.getElementById("word-art"), document.getElementById("hud-yen"));
@@ -315,6 +325,7 @@ function endGame() {
     mistakeCount: state.mistakeCount,
     luckyMode: state.luckyMode,
     rareCount: state.rareCount,
+    hardCount: state.hardCount,
   });
 
   document.getElementById("result-total").innerHTML = `${state.score.toLocaleString()}<span>円</span>`;

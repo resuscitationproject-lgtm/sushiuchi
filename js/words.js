@@ -165,9 +165,22 @@ const RARE_ITEMS = [
   { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true },
   { kana: "はやしだ",     romaji: ["hayashida"],   price: 777, rare: true },
   { kana: "キャンドル",   romaji: ["kyandoru"],    price: 777, rare: true },
-  { kana: "ビーウィズ",   romaji: ["biuizu", "biiuizu", "bi-uizu"], price: 777, rare: true },
   { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true },
   { kana: "マツケンサンバ", price: 777, rare: true },
+  { kana: "ちいかわ",     price: 777, rare: true },
+];
+
+/* ==========================================================
+   難関問題（全体の約1/10で出現・1,500円）
+   label  : 画面に大きく出す表記
+   romaji : 英字のまま打つ言葉などは手書きで指定（かなのローマ字も受付）
+   確率は game.js の HARD_CHANCE で調整できます。
+   ========================================================== */
+const HARD_ITEMS = [
+  { label: "BeWith", kana: "ビーウィズ", romaji: ["bewith"], price: 1500, hard: true },
+  { label: "チュッパチャップス", kana: "ちゅっぱちゃっぷす", price: 1500, hard: true },
+  { label: "東京特許許可局", kana: "とうきょうとっきょきょかきょく", price: 1500, hard: true },
+  { label: "Aぇグループ", kana: "ええぐるーぷ", price: 1500, hard: true },
 ];
 
 /* ==========================================================

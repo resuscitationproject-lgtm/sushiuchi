@@ -186,7 +186,7 @@ function initTTSControls() {
     });
   });
   document.getElementById("tts-test-btn").addEventListener("click", () => speak("ちゅうとろ", { force: true }));
-  document.getElementById("tts-test-rare-btn").addEventListener("click", () => speak("レア問題！にれさとし", { force: true }));
+  document.getElementById("tts-test-rare-btn").addEventListener("click", () => speak("レア問題！ちいかわ", { force: true }));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
