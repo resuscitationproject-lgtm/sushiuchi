@@ -222,7 +222,9 @@ function nextWord() {
   const it = state.currentItem;
   speak(it.rare ? `レア問題！${it.kana}` : it.hard ? `難関問題！${it.kana}` : it.kana);
   const art = document.getElementById("word-art");
-  art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : state.currentItem.hard ? "#8e9aa6" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
+  art.classList.toggle("photo", !!state.currentItem.photo);
+  if (state.currentItem.photo) art.innerHTML = `<img src="${state.currentItem.photo}" alt="">`;
+  else art.innerHTML = sushiSVG(kindFor(state.currentItem), state.currentItem.rare ? "#c9971b" : state.currentItem.hard ? "#8e9aa6" : PLATE_COLORS[state.correctCount % PLATE_COLORS.length]);
   art.classList.remove("arrive");
   void art.offsetWidth;
   art.classList.add("arrive");
