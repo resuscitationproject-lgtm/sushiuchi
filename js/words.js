@@ -162,7 +162,7 @@ function getRank(total) {
    確率は game.js の LUCKY_MODE_CHANCE / LUCKY_RARE_CHANCE で調整できます。
    ========================================================== */
 const RARE_ITEMS = [
-  { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true },
+  { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true, photo: "assets/photos/nire.jpg" },
   { kana: "はやしだ",     romaji: ["hayashida"],   price: 777, rare: true },
   { kana: "キャンドル",   romaji: ["kyandoru"],    price: 777, rare: true },
   { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg", weight: 3 },
