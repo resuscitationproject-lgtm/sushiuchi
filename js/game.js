@@ -216,7 +216,11 @@ function nextWord() {
   document.getElementById("word-label").textContent = state.currentItem.label || "";
   document.getElementById("word-label").classList.toggle("hidden", !state.currentItem.label);
   document.getElementById("word-kana").textContent = state.currentItem.kana;
-  document.getElementById("word-romaji").textContent = defaultRomaji(state.currentItem);
+  // 長い問題でもはみ出さないように、文字数に応じて少しだけ縮める（最小24px）
+  const romajiEl = document.getElementById("word-romaji");
+  const romajiText = defaultRomaji(state.currentItem);
+  romajiEl.textContent = romajiText;
+  romajiEl.style.fontSize = `${Math.max(24, Math.min(38, Math.round(38 * 14 / Math.max(14, romajiText.length))))}px`;
   document.getElementById("word-price").textContent = `${state.currentItem.price}円`;
   document.getElementById("word-card").classList.toggle("rare", !!state.currentItem.rare);
   document.getElementById("word-card").classList.toggle("place", !!state.currentItem.place);

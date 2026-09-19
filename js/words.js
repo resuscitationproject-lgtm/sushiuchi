@@ -134,6 +134,52 @@ const PLACE_ITEMS = [
     label: "到津の森公園", kana: "いとうづのもりこうえん", price: 450, place: true,
     trivia: "到津の森公園は、市民に支えられて続いている北九州の動物園だよ。",
   },
+
+  /* --- 公共施設・公園 --- */
+  {
+    label: "いのちのたび博物館", kana: "いのちのたびはくぶつかん", price: 500, place: true,
+    trivia: "いのちのたび博物館は、恐竜の全身骨格がずらりと並ぶ自然史・歴史博物館だよ。",
+  },
+  {
+    label: "スペースLABO", kana: "すぺーすらぼ", price: 400, place: true,
+    trivia: "スペースLABOは北九州市科学館の愛称。実験や体験を通して科学のふしぎを楽しめるよ。",
+  },
+  {
+    label: "北九州市立美術館", kana: "きたきゅうしゅうしりつびじゅつかん", price: 550, place: true,
+    trivia: "丘の上から2つの筒が突き出た形から「丘の上の双眼鏡」と呼ばれているよ。",
+  },
+  {
+    label: "中央図書館", kana: "ちゅうおうとしょかん", price: 400, place: true,
+    trivia: "北九州市立中央図書館は、かまぼこのような丸い屋根が特徴の建物だよ。",
+  },
+  {
+    label: "北九州芸術劇場", kana: "きたきゅうしゅうげいじゅつげきじょう", price: 550, place: true,
+    trivia: "リバーウォーク北九州の中にある劇場。演劇やコンサートが行われるよ。",
+  },
+  {
+    label: "ミクニワールドスタジアム", kana: "みくにわーるどすたじあむ", price: 550, place: true,
+    trivia: "海のすぐそばに建つサッカースタジアム。客席から海が見えるんだ。",
+  },
+  {
+    label: "勝山公園", kana: "かつやまこうえん", price: 350, place: true,
+    trivia: "小倉城のまわりに広がる公園。春は桜の名所としてにぎわうよ。",
+  },
+  {
+    label: "グリーンパーク", kana: "ぐりーんぱーく", price: 400, place: true,
+    trivia: "響灘緑地グリーンパークは、広い芝生やバラ園、動物とふれあえるエリアがある大きな公園だよ。",
+  },
+  {
+    label: "高塔山公園", kana: "たかとうやまこうえん", price: 400, place: true,
+    trivia: "若松の高塔山公園は、あじさいと、洞海湾を見下ろす眺めで知られているよ。",
+  },
+  {
+    label: "山田緑地", kana: "やまだりょくち", price: 400, place: true,
+    trivia: "山田緑地は、自然をできるだけそのまま残して未来へつなぐことを目指した公園だよ。",
+  },
+  {
+    label: "白野江植物公園", kana: "しらのえしょくぶつこうえん", price: 450, place: true,
+    trivia: "門司の白野江植物公園は、四季おりおりの花が楽しめる。春の桜がとくに有名だよ。",
+  },
 ];
 
 /* ランク表（合計円に応じたコメント。寿司打を参考にしたオリジナル） */
@@ -165,7 +211,7 @@ const RARE_ITEMS = [
   { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true, photo: "assets/photos/nire.jpg" },
   { kana: "はやしだ",     romaji: ["hayashida"],   price: 777, rare: true },
   { kana: "キャンドル",   romaji: ["kyandoru"],    price: 777, rare: true },
-  { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg", weight: 3 },
+  { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg", weight: 6 },
   { kana: "マツケンサンバ", price: 777, rare: true },
   { kana: "ちいかわ",     price: 777, rare: true },
 ];
