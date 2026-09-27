@@ -182,6 +182,43 @@ const PLACE_ITEMS = [
   },
 ];
 
+/* ==========================================================
+   北九州市の難読地名（区＋町名）
+   長いので高めの配点。区名から打ちます（例：小倉北区黒原 → kokurakitakukurobaru）
+   ========================================================== */
+const TOWN_ITEMS = [
+  { label: "小倉北区 黒原", kana: "こくらきたくくろばる", price: 600, place: true,
+    trivia: "「原」を「ばる」と読むのは九州に多い地名の特徴だよ。" },
+  { label: "小倉北区 到津", kana: "こくらきたくいとうづ", price: 600, place: true,
+    trivia: "「到津」で「いとうづ」。到津の森公園でおなじみの地名だね。" },
+  { label: "小倉北区 日明", kana: "こくらきたくひあがり", price: 600, place: true,
+    trivia: "「日明」と書いて「ひあがり」。お日さまが上がる、が由来といわれるよ。" },
+  { label: "小倉南区 企救丘", kana: "こくらみなみくきくがおか", price: 650, place: true,
+    trivia: "「企救（きく）」は、このあたりの昔の地名「企救郡」から来ているよ。" },
+  { label: "小倉南区 朽網", kana: "こくらみなみくくさみ", price: 600, place: true,
+    trivia: "「朽網」で「くさみ」。JRの駅名にもなっているよ。" },
+  { label: "小倉南区 頂吉", kana: "こくらみなみくかぐめよし", price: 700, place: true,
+    trivia: "「頂吉」で「かぐめよし」。市内でも指折りの難読地名だよ。" },
+  { label: "小倉南区 合馬", kana: "こくらみなみくおうま", price: 600, place: true,
+    trivia: "合馬は、たけのこの産地としても有名だよ。" },
+  { label: "小倉南区 守恒", kana: "こくらみなみくもりつね", price: 600, place: true },
+  { label: "門司区 猿喰", kana: "もじくさるはみ", price: 600, place: true,
+    trivia: "「猿喰」で「さるはみ」。猿喰新田という古い干拓地の名前が残っているよ。" },
+  { label: "門司区 鹿喰", kana: "もじくかじき", price: 600, place: true },
+  { label: "若松区 修多羅", kana: "わかまつくすたら", price: 650, place: true,
+    trivia: "お経の言葉が由来ともいわれる、めずらしい地名だよ。" },
+  { label: "若松区 蜑住", kana: "わかまつくあますみ", price: 650, place: true,
+    trivia: "「蜑」は海で働く人をあらわす昔の漢字だよ。" },
+  { label: "八幡西区 陣原", kana: "やはたにしくじんのはる", price: 650, place: true,
+    trivia: "「陣原」で「じんのはる」。ここも「原」を「はる」と読むね。" },
+  { label: "八幡西区 木屋瀬", kana: "やはたにしくこやのせ", price: 650, place: true,
+    trivia: "木屋瀬は、長崎街道の宿場町として栄えた町だよ。" },
+  { label: "八幡西区 永犬丸", kana: "やはたにしくえいのまる", price: 650, place: true },
+  { label: "八幡西区 上津役", kana: "やはたにしくこうじゃく", price: 650, place: true },
+  { label: "戸畑区 天籟寺", kana: "とばたくてんらいじ", price: 650, place: true,
+    trivia: "「天籟」は風が鳴らす自然の音のこと。趣のある地名だね。" },
+];
+
 /* ランク表（合計円に応じたコメント。寿司打を参考にしたオリジナル） */
 const RANKS = [
   { min: 0,    label: "見習い" },
@@ -211,7 +248,7 @@ const RARE_ITEMS = [
   { kana: "にれさとし",   romaji: ["niresatoshi"], price: 777, rare: true, photo: "assets/photos/nire.jpg" },
   { kana: "はやしだ",     romaji: ["hayashida"],   price: 777, rare: true },
   { kana: "キャンドル",   romaji: ["kyandoru"],    price: 777, rare: true },
-  { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg", weight: 6 },
+  { kana: "タイタニック", romaji: ["taitanikku"],  price: 777, rare: true, photo: "assets/photos/titanic.jpg", weight: 6, enabled: false },
   { kana: "マツケンサンバ", price: 777, rare: true },
   { kana: "ちいかわ",     price: 777, rare: true },
 ];
@@ -223,6 +260,7 @@ const RARE_ITEMS = [
    確率は game.js の HARD_CHANCE で調整できます。
    photo  : （任意）出題時にイラストの代わりに表示する写真（レア問題でも使えます）
    weight : （任意）出やすさ。省略時は1。3にすると他の問題の3倍出やすくなります
+   enabled: （任意）false にすると出題されなくなります（データは残したまま休止）
    ========================================================== */
 const HARD_ITEMS = [
   { label: "BeWith", kana: "ビーウィズ", romaji: ["bewith"], price: 1500, hard: true, photo: "assets/photos/bewith.jpg" },

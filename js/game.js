@@ -39,7 +39,12 @@ const LUCKY_MODE_CHANCE = 0.1;
 const LUCKY_RARE_CHANCE = 1 / 3;
 const HARD_CHANCE = 1 / 10; // 難関問題：全体の約1/10
 
-function randomFrom(list) {
+function activeItems(list) {
+  return list.filter(it => it.enabled !== false);
+}
+
+function randomFrom(rawList) {
+  const list = activeItems(rawList);
   // weight（出やすさ）で重み付け抽選。直前と同じ問題が続かないようにする
   const total = list.reduce((sum, it) => sum + (it.weight || 1), 0);
   let item;
@@ -63,7 +68,7 @@ function pickWord() {
   let item;
   if (useRare) item = randomFrom(RARE_ITEMS);
   else if (Math.random() < HARD_CHANCE) item = randomFrom(HARD_ITEMS);
-  else item = randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS]);
+  else item = randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS, ...TOWN_ITEMS]);
   state.lastKana = item.kana;
   return item;
 }
