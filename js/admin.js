@@ -57,7 +57,7 @@ function exportCSV() {
   const csv = toCSV(results);
   const now = new Date();
   const stamp = now.toISOString().slice(0, 19).replace(/[:T]/g, "-");
-  downloadCSV(`sushitypeing_results_${stamp}.csv`, csv);
+  downloadCSV(`utcha_sushi_typing_results_${stamp}.csv`, csv);
 }
 
 function clearAllResults() {
