@@ -68,7 +68,7 @@ function pickWord() {
   let item;
   if (useRare) item = randomFrom(RARE_ITEMS);
   else if (Math.random() < HARD_CHANCE) item = randomFrom(HARD_ITEMS);
-  else item = randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS, ...TOWN_ITEMS]);
+  else item = randomFrom([...SUSHI_ITEMS, ...PLACE_ITEMS, ...TOWN_ITEMS, ...SWEETS_ITEMS]);
   state.lastKana = item.kana;
   return item;
 }
@@ -220,6 +220,8 @@ function nextWord() {
   if (state.currentItem.hard) state.hardCount += 1;
   document.getElementById("word-label").textContent = state.currentItem.label || "";
   document.getElementById("word-label").classList.toggle("hidden", !state.currentItem.label);
+  // 漢字表記がある問題は、読みがなを小さめに出す
+  document.getElementById("word-card").classList.toggle("with-label", !!state.currentItem.label);
   document.getElementById("word-kana").textContent = state.currentItem.kana;
   // 長い問題でもはみ出さないように、文字数に応じて少しだけ縮める（最小24px）
   const romajiEl = document.getElementById("word-romaji");

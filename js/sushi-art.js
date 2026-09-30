@@ -62,6 +62,13 @@ function sushiSVG(kind, plateColor) {
         <circle cx="60" cy="30" r="9" fill="#fff"/>
         <circle cx="60" cy="30" r="4" fill="#1f6fb2"/>
       </svg>`;
+    case "sweets": // 銘菓：お皿にのせたお菓子
+      return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">${plate}
+        <path d="M26 56 Q26 24 60 24 Q94 24 94 56 Z" fill="#e8c48f" stroke="#c99a5b" stroke-width="2"/>
+        <path d="M34 40 Q60 30 86 40" stroke="#c99a5b" stroke-width="2" fill="none" opacity=".7"/>
+        <circle cx="60" cy="36" r="7" fill="#d9362b" opacity=".85"/>
+        <path d="M22 56 L98 56" stroke="#c99a5b" stroke-width="3"/>
+      </svg>`;
     case "hard": // 難関：銀の皿に「難」
       return `<svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="60" cy="64" rx="56" ry="14" fill="#7d8b98"/>
@@ -102,6 +109,7 @@ function kindFor(item) {
   if (!item) return "maguro";
   if (item.rare) return "rare";
   if (item.hard) return "hard";
+  if (item.sweets) return "sweets";
   if (item.place) return "place";
   return SUSHI_KIND[item.kana] || "maguro";
 }

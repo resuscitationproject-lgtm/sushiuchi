@@ -508,7 +508,7 @@ header.app-header .partner-logo { height: clamp(56px, 6vw, 86px); width: auto; d
 
 /* ---------- 名所・ラッキーモード ---------- */
 .word-label { font-size: clamp(30px, 5vw, 46px); font-weight: 800; color: var(--club-blue-dark); line-height: 1.2; }
-.word-card.place .kana { font-size: clamp(18px, 2.6vw, 24px); color: var(--club-blue); }
+.word-card.with-label .kana { font-size: clamp(18px, 2.6vw, 26px); color: var(--club-blue); font-weight: 600; }
 .word-card.place { background: linear-gradient(160deg, #f5f9fd, #e3f0fb); border-color: var(--club-blue-light); }
 .word-romaji {
   font-family: "Courier New", monospace;
